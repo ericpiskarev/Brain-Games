@@ -1,0 +1,50 @@
+import time
+from machine import Pin, ADC
+
+# Set up the ADC and joystick pins
+x_pin = ADC(26)
+y_pin = ADC(27)
+button_pin = Pin(14, Pin.IN, Pin.PULL_DOWN)
+
+# Define the directions and their corresponding ranges
+directions = {
+    'up': (1000, 2000),
+    'down': (200, 1000),
+    'left': (0, 1000),
+    'right': (2000, 4095)
+}
+
+# Choose a random direction
+direction = 'up'
+
+# Wait for the user to press the button to start the game
+print("Push the button to start!")
+while not button_pin.value():
+    time.sleep(0.1)
+
+# Wait for the user to release the button
+print("Push the joystick {}!".format(direction))
+while button_pin.value():
+    x_value = x_pin.read_u16()
+    y_value = y_pin.read_u16()
+    if directions[direction][0] < x_value < directions[direction][1] and y_value < 1000:
+        break
+    time.sleep(0.1)
+
+# Record the start time
+start_time = time.time()
+
+# Wait for the user to move the joystick in the correct direction
+while True:
+    x_value = x_pin.read_u16()
+    y_value = y_pin.read_u16()
+    if directions[direction][0] < x_value < directions[direction][1] and y_value < 1000:
+        break
+    time.sleep(0.1)
+
+# Record the end time
+end_time = time.time()
+
+# Calculate the elapsed time
+elapsed_time = end_time - start_time
+print("Elapsed time: {:.2f} seconds".format(elapsed_time))
